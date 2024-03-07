@@ -1,0 +1,37 @@
+callback github:
+http://localhost:3000/api/sessions/callbackGithub
+
+mongoUrl: 'mongodb+srv://ffedecairo:CoderCoder@cluster0.uazzwoe.mongodb.net/?retryWrites=true&w=majority',
+mongoOptions:{dbName: 'ecommerce'}
+
+Owned by: @fefou
+App ID: 772831
+Client ID: Iv1.c0a7875e10a1f075
+9ae228d6554c6c3ba9a79a2df25ce6ff053d988a
+
+admin: adminCoder@coder.com
+pass: adminCod3r123
+
+premium: premium@test.com
+pass: 123
+
+
+https://github.com/fefou/tercera_preEntrega_PF
+
+link entrega github: 
+https://github.com/fefou/tercera_preEntrega_PF.git
+
+usuario de la BD:  ffedecairo
+password: CoderCoder
+
+link BD: 
+mongodb+srv://ffedecairo:CoderCoder@cluster0.uazzwoe.mongodb.net/?retryWrites=true&w=majority
+
+contraseña gmail nodemailer: jrza ydtm myzu arxk
+
+service: 'gmail',
+        port: 587,
+        auth:{
+            user: "ffedecairo@gmail.com",
+            pass: "jrzaydtmmyzuarxk"
+        }
