@@ -1,0 +1,12 @@
+<h2>Repita su nueva contraseña:</h2>
+<hr>
+
+<form action="/api/sessions/recupero03" method="post">
+    <input type="password" name="password" id="password">
+    <input type="password" name="password2" id="password2">
+    <input type="text" name="token" value="{{token}}" hidden>
+    <br>
+    <input type="submit" value="Resetear">
+</form>
+
+<script src="js/recupero02.js"></script>

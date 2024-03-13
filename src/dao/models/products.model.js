@@ -34,6 +34,10 @@ const productsEsquema = new mongoose.Schema({
     deleted: {
         type: Boolean,
         default: false
+    },
+    owner:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'usuarios'
     }
 })
 

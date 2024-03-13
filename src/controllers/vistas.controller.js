@@ -27,7 +27,7 @@ export class VistasController {
     let category = req.query.category || null;
     let sort = req.query.sort || "asc";
 
-    let filter = {};
+    let filter = { deleted: false }; // Agrega el filtro para excluir los productos eliminados
     if (category) {
       filter.category = category;
     }
@@ -64,6 +64,7 @@ export class VistasController {
       res.status(500).json({ error: error.message });
     }
   }
+
 
   static async realTimeProductsById(req, res) {
     const { pid } = req.params;
@@ -152,9 +153,23 @@ export class VistasController {
     }
   }
 
-  static async reseteoPass(req,res){
-    
+  static async reseteoPass(req, res) {
+    try {
+      res.render("recupero01");
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
   }
+
+  static async reseteoPass02(req, res) {
+    try {
+      const token = req.query.token; // Obteniendo el token de la consulta
+      res.render('recupero02', { token: token }); // Pasando el token a la vista
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  }
+  
 
 
   static async cargaProductos(req, res) {
@@ -174,7 +189,7 @@ export class VistasController {
     let category = req.query.category || null;
     let sort = req.query.sort || "asc";
 
-    let filter = {};
+    let filter = { deleted: false }; // Agrega el filtro para excluir los productos eliminados
     if (category) {
       filter.category = category;
     }

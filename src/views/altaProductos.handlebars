@@ -1,0 +1,22 @@
+<h1>Crear Nuevo Producto</h1>
+<form action="/api/products" method="POST">
+    <label for="title">Título:</label><br>
+    <input type="text" id="title" name="title" required><br>
+
+    <label for="description">Descripción:</label><br>
+    <textarea id="description" name="description"></textarea><br>
+
+    <label for="price">Precio:</label><br>
+    <input type="number" id="price" name="price" required><br>
+
+    <label for="code">Código:</label><br>
+    <input type="number" id="code" name="code" required><br>
+
+    <label for="stock">Stock:</label><br>
+    <input type="number" id="stock" name="stock" required><br>
+
+    <label for="category">Categoría:</label><br>
+    <input type="text" id="category" name="category" required><br>
+
+    <button type="submit">Crear Producto</button>
+</form>

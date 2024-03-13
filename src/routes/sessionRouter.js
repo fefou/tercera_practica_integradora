@@ -40,4 +40,10 @@ router.post('/register', passport.authenticate('registro', { failureRedirect: '/
 
 router.get('/logout', SessionsController.logout)
 
-router.get('/current', SessionsController.current) 
+router.get('/current', SessionsController.current)
+
+router.post('/recupero01', SessionsController.recupero)
+
+router.get('/recupero02', SessionsController.recupero02)
+
+router.post('/recupero03', SessionsController.recupero03)

@@ -5,11 +5,11 @@ import mongoose from "mongoose";
 import { CustomError } from "../utils/customErrors.js";
 import { STATUS_CODES } from "../utils/errorStatusCodes.js";
 import { errorData } from "../utils/errores.js";
-
+import { usuariosModelo } from "../dao/models/users.model.js";
 
 
 export class ProductosController {
-  constructor() {}
+  constructor() { }
 
   static async getProductos(req, res) {
     const page = parseInt(req.query.page) || 1;
@@ -79,61 +79,43 @@ export class ProductosController {
 
   static async postProducto(req, res) {
     let { title, description, price, code, stock, category } = req.body;
-    let thumbnails = req.body.thumbnails || [];
-    let status = req.body.status !== undefined ? req.body.status : true;
 
     if (!title || !price || !code || !stock || !category) {
-      req.logger.log("error", "no se completaron todas las propiedades necesarias.")
-      throw CustomError.CustomError("Error", "Datos faltantes", STATUS_CODES.ERROR_DATOS_ENVIADOS, errorData);
-    }
-
-    let existe = false;
-    try {
-      existe = await productsModelo.findOne({ deleted: false, title, code });
-    } catch (error) {
-      res.setHeader("Content-Type", "application/json");
-      return res
-        .status(500)
-        .json({ error: `Error al buscar producto`, message: error.message });
-    }
-
-    if (existe) {
-      res.setHeader("Content-Type", "application/json");
-      return res
-        .status(400)
-        .json({ error: `El titulo ${title} o codigo ${code} ya existe en BD` });
+      // Manejar el caso en que falten datos requeridos en el formulario
+      return res.status(400).json({ error: "Faltan datos requeridos en el formulario" });
     }
 
     try {
-      let productos = await productsModelo.create({
+      // Verificar si ya existe un producto con el mismo título y código
+      const existe = await productsModelo.findOne({ title, code });
+
+      if (existe) {
+        return res.status(400).json({ error: "Ya existe un producto con este título y código" });
+      }
+
+      // Crear el nuevo producto
+
+      let ownerUser = await usuariosModelo.findById(req.user._id).lean();
+      const nuevoProducto = await productsModelo.create({
         title,
         description,
         price,
         code,
         stock,
         category,
+        owner: ownerUser // Establecer el propietario como el usuario actualmente autenticado
       });
 
-      let nuevoProducto = {
-        title,
-        description,
-        price,
-        code,
-        stock,
-        status,
-        thumbnails,
-      };
+      console.log(nuevoProducto)
 
-      serverSockets.emit("productos", productos);
-      res.setHeader("Content-Type", "application/json");
-      return res.status(201).json({ payload: nuevoProducto });
+      // Enviar una respuesta exitosa con el nuevo producto creado
+      return res.status(201).json({ success: true, producto: nuevoProducto });
     } catch (error) {
-      res.setHeader("Content-Type", "application/json");
-      return res
-        .status(400)
-        .json({ error: `Error al crear producto`, message: error.message });
+      // Manejar cualquier error que ocurra durante la creación del producto
+      return res.status(500).json({ error: "Error al crear el producto", message: error.message });
     }
   }
+
 
   static async putProducto(req, res) {
     let { id } = req.params;
@@ -188,51 +170,40 @@ export class ProductosController {
   }
 
   static async deleteProducto(req, res) {
-
-
-    let { id } = req.params;
+    const { id } = req.params;
 
     if (!mongoose.isValidObjectId(id)) {
       res.setHeader("Content-Type", "application/json");
       return res.status(400).json({ error: `Indique un id válido` });
     }
 
-    let existe;
+    let producto;
     try {
-      existe = await productsModelo.findOne({ deleted: false, _id: id });
-    } catch (error) {
-      res.setHeader("Content-Type", "application/json");
-      return res
-        .status(500)
-        .json({ error: `Error al buscar producto`, message: error.message });
-    }
-
-    if (!existe) {
-      res.setHeader("Content-Type", "application/json");
-      return res.status(400).json({ error: `No existe producto con id ${id}` });
-    }
-
-    let resultado;
-    try {
-      resultado = await productsModelo.updateOne(
-        { deleted: false, _id: id },
-        { $set: { deleted: true } }
-      );
-
-      if (resultado.modifiedCount > 0) {
-        res.setHeader("Content-Type", "application/json");
-        return res.status(200).json({ payload: "Producto Eliminado" });
-      } else {
-        res.setHeader("Content-Type", "application/json");
-        return res
-          .status(200)
-          .json({ message: "No se eliminó ningún producto" });
+      producto = await productsModelo.findOne({ _id: id, deleted: false });
+      if (!producto) {
+        return res.status(404).json({ error: `No existe producto con ID ${id}` });
       }
     } catch (error) {
-      res.setHeader("Content-Type", "application/json");
-      return res
-        .status(500)
-        .json({ error: `Error inesperado`, message: error.message });
+      return res.status(500).json({ error: `Error al buscar producto`, message: error.message });
+    }
+
+    // Verificar si el usuario es administrador o propietario del producto
+    if (req.user.rol === 'admin' || (req.user.rol === 'premium' && String(req.user._id) === String(producto.owner))) {
+      try {
+        const resultado = await productsModelo.updateOne(
+          { _id: id, deleted: false },
+          { $set: { deleted: true } }
+        );
+        if (resultado.modifiedCount > 0) {
+          return res.status(200).json({ payload: "Producto Eliminado" });
+        } else {
+          return res.status(200).json({ message: "No se eliminó ningún producto" });
+        }
+      } catch (error) {
+        return res.status(500).json({ error: `Error inesperado`, message: error.message });
+      }
+    } else {
+      return res.status(403).json({ error: "No tiene permisos para eliminar este producto" });
     }
   }
 }

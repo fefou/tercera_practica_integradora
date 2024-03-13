@@ -25,6 +25,10 @@ const auth = (req, res, next) => {
 router.get("/realtimeproducts", auth, VistasController.realTimeProducts);
 
 router.get("/realtimeproducts/:pid", auth, VistasController.realTimeProductsById);
+
+router.get("/altaproductos", authRoles(['admin', 'premium']), (req,res)=> {
+  res.status(200).render("altaProductos");
+})
 // ------------ PRODUCTOS ------------
 
 //  ------------ CHAT ------------
@@ -78,7 +82,7 @@ router.get("/perfil", auth, (req, res) => {
 
 
 // ------------ CARGA PRODUCTOS ------------
-router.get("/cargaProductos", authRoles(['admin']), VistasController.cargaProductos);
+router.get("/cargaProductos", authRoles(['admin', 'premium']), VistasController.cargaProductos);
 
 
 // ------------ CARGA PRODUCTOS ------------
@@ -101,3 +105,11 @@ router.get("/loggertest", (req, res) => {
   return res.status(200).json({ message: "Mensajes de registro enviados con éxito." });
 });
 // ------------ WINSTON ------------
+
+
+// ------------ RESETEO ------------
+router.get("/recupero01", VistasController.reseteoPass)
+router.get("/recupero02", VistasController.reseteoPass02)
+
+
+// ------------ RESETEO ------------
