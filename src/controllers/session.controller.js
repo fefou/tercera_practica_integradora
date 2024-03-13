@@ -88,9 +88,7 @@ export class SessionsController {
       let datosToken = jwt.verify(token, config.SECRET)
       res.redirect(`http://localhost:${config.PORT}/recupero02?token=` + token)
     } catch (error) {
-      res.setHeader('Content-Type', 'application/json');
-      return res.status(500).json({ error: `Error inesperado en el servidor - Intente más tarde, o contacte a su administrador` })
-
+      res.redirect(`http://localhost:${config.PORT}?mensaje=Error token: ` + error.message)
     }
   }
 
